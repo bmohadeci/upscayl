@@ -1,7 +1,7 @@
 {
-  "name": "upscayl",
+  "name": "upscayl-internal",
   "private": true,
-  "version": "2.15.0",
+  "version": "2.15.0-internal.1",
   "productName": "Upscayl",
   "author": {
     "name": "Nayam Amarshe",
@@ -149,7 +149,9 @@
             "universal"
           ]
         }
-      ]
+      ],
+      "notarize": false,
+      "identity": null
     },
     "dmg": {
       "sign": "false",
@@ -197,11 +199,7 @@
       "export",
       "renderer/out"
     ],
-    "publish": {
-      "provider": "github",
-      "owner": "upscayl",
-      "repo": "upscayl"
-    }
+    "publish": null
   },
   "devDependencies": {
     "@electron/notarize": "^2.5.0",
@@ -213,7 +211,7 @@
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
     "daisyui": "^4.12.23",
-    "electron": "^33.2.1",
+    "electron": "33.4.11",
     "electron-builder": "^25.1.8",
     "next": "^15.2.4",
     "postcss": "^8.4.49",
@@ -241,11 +239,9 @@
     "electron-updater": "^6.3.9",
     "eslint-config-next": "^14.2.7",
     "exiftool-vendored": "^29.3.0",
-    "firebase": "^11.1.0",
     "gray-matter": "^4.0.3",
     "jotai": "^2.11.0",
     "lucide-react": "^0.469.0",
-    "posthog-js": "^1.203.2",
     "react-compare-slider": "^3.1.0",
     "react-markdown": "^9.0.1",
     "react-resizable-panels": "^2.1.7",

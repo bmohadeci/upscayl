@@ -16,7 +16,6 @@ import { useAtom, useAtomValue } from "jotai";
 import { selectedModelIdAtom } from "@/atoms/user-settings-atom";
 import { customModelIdsAtom } from "@/atoms/models-list-atom";
 import useTranslation from "@/components/hooks/use-translation";
-import posthog from "posthog-js";
 
 const SelectModelDialog = () => {
   const t = useTranslation();
@@ -29,12 +28,6 @@ const SelectModelDialog = () => {
   const handleModelSelect = (model: ModelId | string) => {
     setSelectedModelId(model);
     setOpen(false);
-
-    posthog.capture("model_selected", {
-      $ip: "0.0.0.0",
-      $geoip_disable: true,
-      model,
-    });
   };
 
   const handleZoom = (event: React.MouseEvent, model: ModelId) => {

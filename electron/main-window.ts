@@ -5,7 +5,6 @@ import { ELECTRON_COMMANDS } from "../common/electron-commands";
 import { fetchLocalStorage } from "./utils/config-variables";
 import electronIsDev from "electron-is-dev";
 import { format } from "url";
-import { autoUpdater } from "electron-updater";
 
 let mainWindow: BrowserWindow | undefined;
 
@@ -22,9 +21,11 @@ const createMainWindow = () => {
     show: false,
     backgroundColor: "#171717",
     webPreferences: {
-      nodeIntegration: true,
-      nodeIntegrationInWorker: true,
-      webSecurity: false,
+      nodeIntegration: false,
+      contextIsolation: true,
+      // sandbox off so preload.js can use os/ipcRenderer via contextBridge
+      sandbox: false,
+      webSecurity: true,
       preload: join(__dirname, "preload.js"),
     },
     titleBarStyle: getPlatform() === "mac" ? "hiddenInset" : "default",
@@ -52,22 +53,7 @@ const createMainWindow = () => {
 
   fetchLocalStorage();
 
-  if (!electronIsDev) {
-    console.log("🚀 Checking for updates");
-    mainWindow.webContents
-      .executeJavaScript('localStorage.getItem("autoUpdate");', true)
-      .then((lastSaved: string | null) => {
-        if (
-          lastSaved === null ||
-          lastSaved === undefined ||
-          lastSaved === "true"
-        ) {
-          autoUpdater.checkForUpdates();
-        } else {
-          console.log("🚀 Auto Update is disabled");
-        }
-      });
-  }
+  // Auto-updater disabled: internal build; upstream releases must not overwrite it.
 
   mainWindow.webContents.send(ELECTRON_COMMANDS.OS, getPlatform());
 

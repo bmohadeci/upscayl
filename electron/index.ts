@@ -1,5 +1,4 @@
 import prepareNext from "electron-next";
-import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import { app, ipcMain, protocol } from "electron";
 import { ELECTRON_COMMANDS } from "../common/electron-commands";
@@ -16,7 +15,6 @@ import electronIsDev from "electron-is-dev";
 import { execPath, modelsPath } from "./utils/get-resource-paths";
 import batchUpscayl from "./commands/batch-upscayl";
 import doubleUpscayl from "./commands/double-upscayl";
-import autoUpdate from "./commands/auto-update";
 import { FEATURE_FLAGS } from "../common/feature-flags";
 import settings from "electron-settings";
 import pasteImage from "./commands/paste-image";
@@ -119,6 +117,4 @@ ipcMain.handle("get-app-version", () => {
   }`;
 });
 
-if (!FEATURE_FLAGS.APP_STORE_BUILD) {
-  autoUpdater.on("update-downloaded", autoUpdate);
-}
+// Auto-updater disabled for the internal build.

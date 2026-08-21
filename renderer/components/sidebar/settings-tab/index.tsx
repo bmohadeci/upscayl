@@ -11,7 +11,6 @@ import { useAtom, useAtomValue } from "jotai";
 import { customModelsPathAtom, scaleAtom } from "@/atoms/user-settings-atom";
 import { InputCompression } from "./input-compression";
 import OverwriteToggle from "./overwrite-toggle";
-import { UpscaylCloudModal } from "@/components/upscayl-cloud-modal";
 import { ResetSettingsButton } from "./reset-settings-button";
 import { FEATURE_FLAGS } from "@common/feature-flags";
 import TurnOffNotificationsToggle from "./turn-off-notifications-toggle";
@@ -21,7 +20,6 @@ import { InputTileSize } from "./input-tile-size";
 import LanguageSwitcher from "./language-switcher";
 import { translationAtom } from "@/atoms/translations-atom";
 import { ImageFormat } from "@/lib/valid-formats";
-import EnableContributionToggle from "./enable-contributions-toggle";
 import AutoUpdateToggle from "./auto-update-toggle";
 import TTAModeToggle from "./tta-mode-toggle";
 import SystemInfo from "./system-info";
@@ -84,24 +82,6 @@ function SettingsTab({
     }, 2000);
   };
 
-  const sendToTermbin = async (logData: string[]) => {
-    try {
-      const response = await fetch("https://termbin.com:9999/", {
-        method: "POST",
-        body: logData.join("\n"),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const url = await response.text();
-      return url.trim();
-    } catch (error) {
-      console.error("Error sending to termbin:", error);
-      throw error;
-    }
-  };
 
   const upscaylVersion = navigator?.userAgent?.match(
     /Upscayl\/([\d\.]+\d+)/,
@@ -201,7 +181,6 @@ function SettingsTab({
       <OverwriteToggle />
       <TurnOffNotificationsToggle />
       <AutoUpdateToggle />
-      <EnableContributionToggle />
 
       {/* GPU ID INPUT */}
       <InputGpuId gpuId={gpuId} handleGpuIdChange={handleGpuIdChange} />
@@ -219,24 +198,6 @@ function SettingsTab({
       {/* RESET SETTINGS */}
       <ResetSettingsButton />
 
-      {FEATURE_FLAGS.SHOW_UPSCAYL_CLOUD_INFO && (
-        <>
-          <button
-            className="mx-5 mb-5 animate-pulse rounded-btn bg-success p-1 text-sm text-slate-50 shadow-lg shadow-success/40"
-            onClick={() => {
-              setShow(true);
-            }}
-          >
-            {t("INTRO")}
-          </button>
-
-          <UpscaylCloudModal
-            show={show}
-            setShow={setShow}
-            setDontShowCloudModal={setDontShowCloudModal}
-          />
-        </>
-      )}
 
       <SystemInfo />
     </div>

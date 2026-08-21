@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import SelectTheme from "@/components/sidebar/settings-tab/select-theme";
 import {
   autoUpdateAtom,
-  enableContributionAtom,
 } from "@/atoms/user-settings-atom";
 import { useAtom, useAtomValue } from "jotai";
 import useTranslation from "../hooks/use-translation";
@@ -67,12 +66,6 @@ export function OnboardingDialog() {
             key: "autoUpdate",
           },
           {
-            type: "switch",
-            label: t("SETTINGS.ENABLE_CONTRIBUTION.TITLE"),
-            description: t("SETTINGS.ENABLE_CONTRIBUTION.DESCRIPTION"),
-            key: "improveUpscayl",
-          },
-          {
             type: "component",
             label: t("SETTINGS.THEME.TITLE"),
             component: <SelectTheme hideLabel={true} />,
@@ -106,9 +99,6 @@ export function OnboardingDialog() {
   const isLastStep = currentStep === onboardingSteps.length - 1;
   const isFirstStep = currentStep === 0;
   const [autoUpdate, setAutoUpdate] = useAtom(autoUpdateAtom);
-  const [enableContribution, setEnableContribution] = useAtom(
-    enableContributionAtom,
-  );
 
   useEffect(() => {
     const storedValue = localStorage.getItem("showOnboarding");
@@ -162,12 +152,6 @@ export function OnboardingDialog() {
               <div
                 key={option.key}
                 className="flex h-full w-full items-center justify-between gap-4"
-                data-tooltip-id="tooltip"
-                data-tooltip-content={
-                  option.key === "improveUpscayl"
-                    ? t("SETTINGS.ENABLE_CONTRIBUTION.DESCRIPTION")
-                    : null
-                }
               >
                 {option.label && (
                   <label
@@ -185,15 +169,11 @@ export function OnboardingDialog() {
                     checked={
                       option.key === "autoUpdate"
                         ? autoUpdate
-                        : option.key === "improveUpscayl"
-                          ? enableContribution
-                          : false
+                        : false
                     }
                     onChange={(e) => {
                       if (option.key === "autoUpdate") {
                         setAutoUpdate(e.target.checked);
-                      } else if (option.key === "improveUpscayl") {
-                        setEnableContribution(e.target.checked);
                       }
                     }}
                   />
