@@ -21,7 +21,7 @@ async function main() {
   const metadata = JSON.parse(asar.extractFile(archive, "package.json"));
   assert.equal(metadata.version, require("../package.json").version);
   assert(!metadata.dependencies["posthog-js"] && !metadata.dependencies.firebase);
-  const mainSource = asar.extractFile(archive, "export/electron/main-window.js").toString();
+  const mainSource = asar.extractFile(archive, path.join("export", "electron", "main-window.js")).toString();
   assert.match(mainSource, /nodeIntegration: false/);
   assert.match(mainSource, /contextIsolation: true/);
   assert.match(mainSource, /webSecurity: true/);
@@ -34,7 +34,7 @@ async function main() {
   assert(!help.error, String(help.error));
   assert.match(help.stdout + help.stderr, /Usage|usage/);
   const exifPackage = `exiftool-vendored.${process.platform === "win32" ? "exe" : "pl"}`;
-  const exifEntry = asar.listPackage(archive).find((entry) => entry.endsWith(`/${exifPackage}/bin/${process.platform === "win32" ? "exiftool.exe" : "exiftool"}`));
+  const exifEntry = asar.listPackage(archive).find((entry) => entry.replace(/\\/g, "/").endsWith(`/${exifPackage}/bin/${process.platform === "win32" ? "exiftool.exe" : "exiftool"}`));
   assert(exifEntry, "Bundled ExifTool missing");
   const exifBinary = path.join(`${archive}.unpacked`, exifEntry);
   const exif = spawnSync(exifBinary, ["-ver"], { encoding: "utf8", timeout: 15000 });
