@@ -27,8 +27,11 @@ updates remain disabled; distribute a new installer for subsequent updates.
 
 The `Internal Windows and Mac installers` workflow builds all three targets from
 the same commit using `npm ci` and the committed lockfile. It uploads installers,
-SHA-256 checksums and startup screenshots as Actions artifacts for 30 days. It
-does not publish a GitHub Release or overwrite the August release.
+SHA-256 checksums and startup screenshots as Actions artifacts for 30 days. After
+all targets pass, it stages a draft prerelease with the installers, matching
+source archive, checksums and this guide. Publishing that draft is a separate
+step; the August release is not overwritten. A repeat build does not replace an
+existing release; use a new version for subsequent releases.
 
 Use Node 22 with npm. On the relevant operating system:
 

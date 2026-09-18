@@ -86,3 +86,31 @@ jobs:
             dist/internal/*.dmg
             dist/internal/SHA256SUMS.txt
             dist/internal/smoke-*.png
+
+  draft-release:
+    name: Prepare verified installer release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: installer-artifacts
+          pattern: upscayl-internal-*
+      - name: Assemble colleague handoff
+        run: |
+          mkdir release
+          find installer-artifacts -type f \( -name '*.dmg' -o -name '*.exe' \) -exec cp {} release/ \;
+          test "$(find release -type f | wc -l)" -eq 3
+          cp INTERNAL-BUILDS.md release/INSTALLATION.md
+          git archive --format=zip --prefix=upscayl-source/ -o release/upscayl-internal-2.15.0-internal.2-source.zip HEAD
+          printf 'Source commit: %s\nBuild run: https://github.com/%s/actions/runs/%s\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > release/BUILD-INFO.txt
+          cd release
+          sha256sum *.exe *.dmg *.zip > SHA256SUMS.txt
+      - name: Stage draft prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v2.15.0-internal.2 release/* --draft --prerelease --latest=false --target "$GITHUB_SHA" --title 'Upscayl 2.15.0-internal.2 — Windows and Mac' --notes-file RELEASE-NOTES.md
