@@ -47,6 +47,19 @@ jobs:
         run: npx --no-install electron-builder --config electron-builder.internal.json --${{ matrix.platform }} --${{ matrix.arch }} --publish never
       - name: Verify packaged application
         run: node scripts/smoke-packaged.cjs "${{ matrix.executable }}"
+      - name: Install and verify Windows application
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist/internal/*.exe | Select-Object -First 1
+          $installDir = Join-Path $env:RUNNER_TEMP 'Upscayl Internal Smoke'
+          $process = Start-Process -FilePath $installer.FullName -ArgumentList "/S /D=$installDir" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
+          node scripts/smoke-packaged.cjs "$installDir/Upscayl.exe"
+          if ($LASTEXITCODE -ne 0) { throw 'Installed application failed verification' }
+      - name: Verify Mac disk image
+        if: runner.os == 'macOS'
+        run: hdiutil verify dist/internal/*.dmg
       - name: Generate checksums
         shell: bash
         run: node scripts/installer-checksums.cjs

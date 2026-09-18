@@ -91,7 +91,7 @@ async function main() {
     }
     let state;
     for (let attempt = 0; attempt < 60; attempt++) {
-      state = await evaluate(`({ready: document.readyState, text: document.body.innerText, bridge: !!window.electron, node: typeof require})`);
+      state = await evaluate(`({ready: document.readyState, text: document.body?.innerText || "", bridge: !!window.electron, node: typeof require})`);
       if (state.bridge && /Upscayl/i.test(state.text)) break;
       await pause(500);
     }
