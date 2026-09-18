@@ -50,6 +50,8 @@ with spaces and special characters in the filename, native engine loading,
 ExifTool execution, model presence and the inherited telemetry/updater changes.
 Windows CI also installs the EXE into a temporary directory and repeats these
 checks against the installed app. Mac CI verifies the DMG checksum structure.
+The Windows test host installs the official, checksum-verified Vulkan runtime
+because GitHub's virtual machine does not have a GPU driver supplying the loader.
 
 These automated checks do not prove GPU upscaling on every colleague's machine.
 Before broad rollout, use a representative Windows PC to upscale a small image,

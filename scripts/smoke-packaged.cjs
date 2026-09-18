@@ -32,7 +32,7 @@ async function main() {
   const binary = path.join(resources, "bin", process.platform === "win32" ? "upscayl-bin.exe" : "upscayl-bin");
   const help = spawnSync(binary, ["-h"], { encoding: "utf8", timeout: 15000 });
   assert(!help.error, String(help.error));
-  assert.match(help.stdout + help.stderr, /Usage|usage/);
+  assert.match(help.stdout + help.stderr, /Usage|usage/, `Engine did not show help; exit=${help.status}, signal=${help.signal}. On Windows, check Vulkan/GPU drivers.`);
   const exifPackage = `exiftool-vendored.${process.platform === "win32" ? "exe" : "pl"}`;
   const exifEntry = asar.listPackage(archive).find((entry) => entry.replace(/\\/g, "/").endsWith(`/${exifPackage}/bin/${process.platform === "win32" ? "exiftool.exe" : "exiftool"}`));
   assert(exifEntry, "Bundled ExifTool missing");

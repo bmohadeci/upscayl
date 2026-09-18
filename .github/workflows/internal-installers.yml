@@ -45,6 +45,18 @@ jobs:
       - run: npm run build
       - name: Build installer
         run: npx --no-install electron-builder --config electron-builder.internal.json --${{ matrix.platform }} --${{ matrix.arch }} --publish never
+      - name: Install Vulkan runtime on Windows test host
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Hosted runners have no GPU driver to supply the Vulkan loader.
+          # This is a test prerequisite; it does not add a GPU or alter the app.
+          $runtime = Join-Path $env:RUNNER_TEMP 'VulkanRT.exe'
+          Invoke-WebRequest 'https://sdk.lunarg.com/sdk/download/1.4.357.0/windows/VulkanRT-X64-1.4.357.0-Installer.exe' -OutFile $runtime
+          if ((Get-FileHash $runtime -Algorithm SHA256).Hash -ne '58A9EDEE599E06DAC0485DF9EA7767016CC137C776D5D95AE08301FFF2DEF81C') { throw 'Vulkan runtime checksum mismatch' }
+          $process = Start-Process $runtime -ArgumentList '/S' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Vulkan runtime installation failed: $($process.ExitCode)" }
+          if (!(Test-Path "$env:WINDIR/System32/vulkan-1.dll")) { throw 'Vulkan loader missing' }
       - name: Verify packaged application
         run: node scripts/smoke-packaged.cjs "${{ matrix.executable }}"
       - name: Install and verify Windows application
