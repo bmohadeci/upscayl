@@ -63,10 +63,14 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $installer = Get-ChildItem dist/internal/*.exe | Select-Object -First 1
-          $installDir = Join-Path $env:RUNNER_TEMP 'Upscayl Internal Smoke'
-          $process = Start-Process -FilePath $installer.FullName -ArgumentList "/S /D=$installDir" -Wait -PassThru
+          $installer = Get-ChildItem dist/internal/upscayl-internal-*-win-x64.exe | Select-Object -First 1
+          $installDir = Join-Path $env:RUNNER_TEMP 'Upscayl-Smoke'
+          $process = Start-Process -FilePath $installer.FullName -ArgumentList "/S --current-user /D=$installDir" -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
+          if (!(Test-Path "$installDir/Upscayl.exe")) {
+            Get-ChildItem $env:RUNNER_TEMP -Filter Upscayl.exe -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+            throw "Application missing from $installDir"
+          }
           node scripts/smoke-packaged.cjs "$installDir/Upscayl.exe"
           if ($LASTEXITCODE -ne 0) { throw 'Installed application failed verification' }
       - name: Verify Mac disk image
