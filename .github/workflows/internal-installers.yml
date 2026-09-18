@@ -1,0 +1,63 @@
+name: Internal Windows and Mac installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["codex/internal-installers"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-2022
+            platform: win
+            arch: x64
+            executable: dist/internal/win-unpacked/Upscayl.exe
+          - name: Mac Apple Silicon
+            os: macos-14
+            platform: mac
+            arch: arm64
+            executable: dist/internal/mac-arm64/Upscayl.app/Contents/MacOS/Upscayl
+          - name: Mac Intel
+            os: macos-15-intel
+            platform: mac
+            arch: x64
+            executable: dist/internal/mac/Upscayl.app/Contents/MacOS/Upscayl
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Build installer
+        run: npx --no-install electron-builder --config electron-builder.internal.json --${{ matrix.platform }} --${{ matrix.arch }} --publish never
+      - name: Verify packaged application
+        run: node scripts/smoke-packaged.cjs "${{ matrix.executable }}"
+      - name: Generate checksums
+        shell: bash
+        run: node scripts/installer-checksums.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: upscayl-internal-${{ matrix.platform }}-${{ matrix.arch }}
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+          path: |
+            dist/internal/*.exe
+            dist/internal/*.dmg
+            dist/internal/SHA256SUMS.txt
+            dist/internal/smoke-*.png

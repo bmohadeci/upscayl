@@ -1,0 +1,37 @@
+{
+  "extends": null,
+  "productName": "Upscayl",
+  "appId": "org.upscayl.Upscayl",
+  "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
+  "directories": { "output": "dist/internal" },
+  "asar": true,
+  "asarUnpack": ["**/node_modules/exiftool-vendored.{pl,exe}/**/*"],
+  "files": ["export", "renderer/out", "LICENSE", "Real-ESRGAN_LICENSE.txt"],
+  "extraResources": [
+    { "from": "resources/${os}/bin", "to": "bin" },
+    { "from": "resources/models", "to": "models" },
+    { "from": "resources/icons/128x128.png", "to": "128x128.png" },
+    { "from": "resources/icons/512x512.png", "to": "512x512.png" }
+  ],
+  "afterPack": "./scripts/sign-internal-mac.cjs",
+  "publish": null,
+  "mac": {
+    "identity": null,
+    "notarize": false,
+    "minimumSystemVersion": "12.0.0",
+    "category": "public.app-category.photography",
+    "icon": "build/icon.icns",
+    "target": ["dmg"]
+  },
+  "dmg": { "sign": false },
+  "win": {
+    "icon": "build/icon.png",
+    "target": [{ "target": "nsis", "arch": ["x64"] }]
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true
+  }
+}

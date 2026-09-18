@@ -1,7 +1,7 @@
 {
   "name": "upscayl-internal",
   "private": true,
-  "version": "2.15.0-internal.1",
+  "version": "2.15.0-internal.2",
   "productName": "Upscayl",
   "author": {
     "name": "Nayam Amarshe",
@@ -68,7 +68,9 @@
     "dist:appstore": "CSC_KEY_PASSWORD=$PASSWORD CSC_LINK=$(openssl base64 -in $CERTIFICATE_PATH) npm run dist:mac-mas",
     "enable-store": "sed -i '' -e 's/APP_STORE_BUILD: false,/APP_STORE_BUILD: true,/' common/feature-flags.ts",
     "disable-store": "sed -i '' -e 's/APP_STORE_BUILD: true,/APP_STORE_BUILD: false,/' common/feature-flags.ts",
-    "validate-schema": "node scripts/validate-schema.js"
+    "validate-schema": "node scripts/validate-schema.js",
+    "dist:internal:mac": "npm run build && electron-builder --config electron-builder.internal.json --mac --arm64 --x64 --publish never",
+    "dist:internal:win": "npm run build && electron-builder --config electron-builder.internal.json --win --x64 --publish never"
   },
   "build": {
     "productName": "Upscayl",

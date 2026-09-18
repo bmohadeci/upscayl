@@ -15,7 +15,9 @@ const binariesPath = isDev
   ? join(appRootDir, "resources", getPlatform()!, "bin")
   : join(dirname(appRootDir), "bin");
 
-const execPath = resolve(join(binariesPath, `./upscayl-bin`));
+const execPath = resolve(
+  join(binariesPath, getPlatform() === "win" ? "upscayl-bin.exe" : "upscayl-bin"),
+);
 
 const modelsPath = isDev
   ? resolve(join(appRootDir, "resources", "models"))
