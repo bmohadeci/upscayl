@@ -8,6 +8,7 @@ const { spawn, spawnSync } = require("node:child_process");
 const { pathToFileURL } = require("node:url");
 const net = require("node:net");
 const asar = require("@electron/asar");
+const { sanitizePath } = require("../export/common/sanitize-path");
 
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -102,8 +103,10 @@ async function main() {
     assert(version.includes(metadata.version), version);
     const platform = await evaluate("window.electron.platform");
     assert.equal(platform, process.platform === "win32" ? "win" : "mac");
-    const preview = await evaluate(`new Promise(resolve => { const img = new Image(); img.onload = () => resolve({width: img.naturalWidth, height: img.naturalHeight}); img.onerror = () => resolve({error: true}); img.src = ${JSON.stringify(pathToFileURL(fixture).href)}; document.body.appendChild(img); })`);
-    assert.deepEqual(preview, { width: 128, height: 128 });
+    for (const url of [pathToFileURL(fixture).href, "file:///" + sanitizePath(fixture)]) {
+      const preview = await evaluate(`new Promise(resolve => { const img = new Image(); img.onload = () => resolve({width: img.naturalWidth, height: img.naturalHeight}); img.onerror = () => resolve({error: true}); img.src = ${JSON.stringify(url)}; document.body.appendChild(img); })`);
+      assert.deepEqual(preview, { width: 128, height: 128 }, url);
+    }
     const { data } = await send("Page.captureScreenshot", { format: "png" });
     fs.mkdirSync("dist/internal", { recursive: true });
     fs.writeFileSync(`dist/internal/smoke-${process.platform}-${process.arch}.png`, Buffer.from(data, "base64"));
